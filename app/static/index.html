@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10231e"><title>Factory Copilot</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar"><div class="brand-mark">F</div><div><strong>Factory Copilot</strong><span>Kaveri Precision Components · Hosur</span></div><span class="status"><i></i> Ready</span></header>
+  <main>
+    <section class="intro"><div class="eyebrow">MANUFACTURING KNOWLEDGE ASSISTANT</div><h1>How can I help<br>on the shop floor?</h1><p>Ask about machine maintenance, safety procedures, or incoming inspection. Answers are drawn from the current plant documents.</p></section>
+    <section class="ask-card"><label for="question">YOUR QUESTION</label><textarea id="question" rows="3" placeholder="e.g. The TX-200 shows AL-104. What should I do?"></textarea><div class="ask-row"><span>Replies include document and page references.</span><button id="ask">Ask Copilot <span aria-hidden="true">→</span></button></div><p class="error" id="error" role="alert"></p></section>
+    <section id="answer-card" class="answer-card hidden" aria-live="polite"><div class="answer-heading"><span class="answer-icon">✦</span><div><strong>Copilot answer</strong><span id="mode"></span></div></div><p id="answer"></p><div id="sources"></div></section>
+    <section class="suggestions"><div class="section-heading"><h2>Try asking</h2><span>QUICK QUESTIONS</span></div><div class="chips">
+      <button data-question="What is the recommended coolant concentration for the TX-200 CNC turning centre?">Coolant concentration</button>
+      <button data-question="The machine is showing alarm AL-104. What does it mean and what should the operator do?">Alarm AL-104</button>
+      <button data-question="Who is allowed to remove a lockout lock from a machine?">Lockout / tagout</button>
+      <button data-question="What is the outer diameter tolerance for the BH-220 bearing housing?">BH-220 tolerance</button>
+      <button data-question="How often should spindle runout be checked, and who does it?">Spindle runout</button>
+    </div></section>
+    <section class="docs"><div class="section-heading"><h2>Knowledge documents</h2><span>INDEXED SOURCES</span></div><div id="documents" class="doc-list"><span class="muted">Loading documents…</span></div></section>
+    <footer>For operational and safety decisions, verify the cited procedure and follow site rules.</footer>
+  </main>
+  <script>
+    const question = document.querySelector('#question');
+    const button = document.querySelector('#ask');
+    async function ask() {
+      const q = question.value.trim(); if (!q) { question.focus(); return; }
+      button.disabled = true; button.textContent = 'Searching…'; document.querySelector('#error').textContent = '';
+      document.querySelector('#answer-card').classList.add('hidden');
+      document.querySelector('#answer').textContent = '';
+      document.querySelector('#sources').innerHTML = '';
+      try {
+        const response = await fetch('/api/ask', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({question:q})});
+        const data = await response.json(); if (!response.ok) throw new Error(data.detail || 'Unable to answer right now.');
+        document.querySelector('#answer-card').classList.remove('hidden');
+        document.querySelector('#answer').textContent = data.answer;
+        document.querySelector('#mode').textContent = data.abstained ? 'Not enough document evidence' : data.mode;
+        document.querySelector('#sources').innerHTML = data.sources.map(s => `<article class="source"><b>${s.document_id} · Rev ${s.revision} · Page ${s.page}</b><p>${escapeHtml(s.excerpt)}</p></article>`).join('');
+        document.querySelector('#answer-card').scrollIntoView({behavior:'smooth', block:'nearest'});
+      } catch (e) { document.querySelector('#error').textContent = e.message; }
+      finally { button.disabled = false; button.innerHTML = 'Ask Copilot <span aria-hidden="true">→</span>'; }
+    }
+    function escapeHtml(value) { return value.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    button.addEventListener('click', ask);
+    question.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) {e.preventDefault(); ask();} });
+    document.querySelectorAll('[data-question]').forEach(chip => chip.addEventListener('click', () => { question.value = chip.dataset.question; question.focus(); }));
+    fetch('/api/documents').then(r => r.json()).then(data => {
+      document.querySelector('#documents').innerHTML = data.documents.map(d => `<div class="doc"><span class="doc-icon">▤</span><span><b>${d.document_id}</b><small>${d.title}</small></span><em>${d.current ? 'CURRENT' : 'SUPERSEDED'} · REV ${d.revision}</em></div>`).join('');
+    }).catch(() => { document.querySelector('#documents').textContent = 'Document list unavailable.'; });
+  </script>
+</body></html>

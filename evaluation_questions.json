@@ -1,0 +1,16 @@
+{
+  "provided_sample_questions": [
+    {"question": "What is the recommended coolant concentration for the TX-200 CNC turning centre?", "expected": "6–8%", "document": "MNT-MAN-CNC-02", "revision": "02"},
+    {"question": "The machine is showing alarm AL-104. What does it mean and what should the operator do?", "expected": "Way lube oil level low; top up ISO VG 68 oil to MAX, then press RESET.", "document": "MNT-MAN-CNC-02", "revision": "02"},
+    {"question": "Who is allowed to remove a lockout lock from a machine?", "expected": "Each authorised person removes only their own lock; absent-owner removal follows the documented exception procedure.", "document": "SAF-SOP-003", "revision": "05"},
+    {"question": "What is the outer diameter tolerance for the BH-220 bearing housing?", "expected": "90.000 ± 0.050 mm", "document": "QC-SOP-014", "revision": "04"},
+    {"question": "How often should spindle runout be checked, and who does it?", "expected": "Monthly by a maintenance technician.", "document": "MNT-MAN-CNC-02", "revision": "02"}
+  ],
+  "additional_questions": [
+    {"question": "For a lot of 100 pieces, how many samples should QC inspect?", "expected": "13 samples under the current Rev 04 lot-size band (91–500).", "document": "QC-SOP-014", "revision": "04"},
+    {"question": "Can the inspector accept material if the supplier MTC is missing?", "expected": "No. Put the lot on HOLD; do not inspect or accept it until the mandatory MTC is received.", "document": "QC-SOP-014", "revision": "04"},
+    {"question": "What should happen if any sampled part has a critical defect?", "expected": "Reject the complete lot and return it to the supplier; sorting is not allowed.", "document": "QC-SOP-014", "revision": "04"},
+    {"question": "What is the factory supervisor's salary?", "expected": "Abstain: the supplied documents do not provide salary information.", "unanswerable": true},
+    {"question": "What is the alarm code for low coolant?", "expected": "AL-412; top up with coolant mixed to 6–8% concentration.", "document": "MNT-MAN-CNC-02", "revision": "02"}
+  ]
+}
